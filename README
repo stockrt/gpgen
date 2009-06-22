@@ -1,0 +1,22 @@
+#
+# Author: Rogério Carvalho Schneider <stockrt@gmail.com>
+# URL:    http://stockrt.github.com
+#
+
+Generate static index.html for GitHub Pages based on user-defined template.
+I use this script to generate my GitHub homepage (http://stockrt.github.com).
+
+Usage: gpgen.py [options] <file>
+
+Options:
+  --version          show program's version number and exit
+  -h, --help         show this help message and exit
+  -g GEN, --gen=GEN  Generates the static html for GitHub [default:
+                     index.html]
+
+Also, you may need to edit this script and change some values to fit your
+preferences.
+
+Here you can see some discussion on using it or other, dynamic, approaches
+to automate projects listing in your page:
+http://github.com/stockrt/stockrt.github.com/tree/master
