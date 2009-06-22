@@ -155,7 +155,7 @@ src="forkme_right_orange.png" alt="Fork me on GitHub"/></a>
         % for link in extra_footer_links:
             <a href="${link['url']}">${link['description']}</a> |
         % endfor
-        <a href="mailto:/${user['email']}">reachme</a>
+        <a href="mailto:${user['email']}">reachme</a>
     </div>
     <br/>
 </div>
