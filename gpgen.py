@@ -76,7 +76,7 @@ template = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <title>${user['name']} - ${page['html_head_title']}</title>
 <meta http-equiv="Refresh" content="60"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-<meta name="author" content="${user['name']}"/>
+<meta name="author" content="${user['name']}" xml:lang="en" lang="en"/>
 <meta name="description" content="${page['html_head_description']}" xml:lang="en" lang="en"/>
 <meta name="keywords" content="${page['html_head_keywords']}" xml:lang="en" lang="en"/>
 
