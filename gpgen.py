@@ -203,9 +203,9 @@ user-defined template.
 ''' % __program_file__
 __rpm_data__        = '''
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 /usr/bin/%{name}.py
-/usr/lib/python@@PYVER_MARKER@@/site-packages/%{name}-%{unmangled_version}-py@@PYVER_MARKER@@.egg-info
+@@PYLIB_MARKER@@/%{name}-%{unmangled_version}-py@@PYVER_MARKER@@.egg-info
 '''
 ### GENERIC_SETUP_MARKER_END ###
 

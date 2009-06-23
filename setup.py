@@ -67,7 +67,16 @@ import sys
 import re
 import os
 import itertools
+# Distribution functions
+from distutils.sysconfig import get_python_lib
+from distutils.sysconfig import get_python_version
 ### IMPORTS_END ###
+
+def sortuniq(lista):
+    if isinstance(lista, list) or isinstance(lista, tuple):
+        return sorted([a for a,b in itertools.groupby(sorted(lista))])
+    else:
+        raise TypeError('Argument for sortuniq(arg) must be a tuple or a list')
 
 def generic_setup():
     print 'For more help on %s, type:' % __program_name__
@@ -131,7 +140,7 @@ __rpm_data__        = \'''
 %dir /var/spool/%{name}
 %config(noreplace) /usr/local/%{name}/conf/%{name}.conf
 /usr/local/%{name}/bin/%{name}.py
-/usr/lib/python@@PYVER_MARKER@@/site-packages/%{name}-%{unmangled_version}-py@@PYVER_MARKER@@.egg-info
+@@PYLIB_MARKER@@/%{name}-%{unmangled_version}-py@@PYVER_MARKER@@.egg-info
 
 %post
 echo
@@ -159,9 +168,9 @@ and
  '### GENERIC_SETUP_MARKER_END ###'
 MUST exist.
 - Just copy/paste the sample into your source code and it should work fine.
-- Keep the whole line with the '@@PYVER_MARKER@@' in '__rpm_data__' since it
-is the register for your app into python. The marker will be replaced with
-the correct python version.
+- Keep the whole line with the '@@PYLIB_MARKER@@ and @@PYVER_MARKER@@' in
+'__rpm_data__' since it is the register for your app into python. The marker
+will be replaced with the correct python version.
 
 
 2) Edit this setup.py script and change the 'source_code' define to point to
@@ -170,6 +179,7 @@ your program.
 
 ### DEFINES_START ###
 # Set this parameter to point to your source file, leave the rest as is:
+#source_code = 'change_me.py'
 source_code = 'feedget.py'
 ### DEFINES_END ###
 
@@ -225,8 +235,9 @@ def rpmbuild(sname, sversion, srpmdata):
         os.system('./setup.py bdist_rpm --spec-only')
         # Default tarball
         os.system('./setup.py sdist --dist-dir ~/rpmbuild/SOURCES/')
-        # Python Version
-        pyver = '%d.%d' % (sys.version_info[0], sys.version_info[1])
+        # Python Lib dir and Version
+        pylib = get_python_lib()
+        pyver = get_python_version()
         # Applying the changes to the .spec (%files/%config/%dir/%post):
         # Initialize spec with the basic
         newspec = brpmdata
@@ -238,10 +249,11 @@ def rpmbuild(sname, sversion, srpmdata):
                 newspec += l
         # Insert the user defined specs (%files/%config/%dir/%post):
         newspec += srpmdata
-        # Replacing the Python Version by the real one:
+        # Replace the Python Lib dir and Version by the real ones
+        newspec = newspec.replace('@@PYLIB_MARKER@@', pylib)
         newspec = newspec.replace('@@PYVER_MARKER@@', pyver)
         open('dist/%s.spec' % sname, 'w').write(newspec)
-        # Create the new RPM:
+        # Create the new RPM
         os.system('rpmbuild -bb dist/%s.spec' % sname)
         # Copy the created RPM to dist/
         os.system('/bin/cp ~/rpmbuild/RPMS/noarch/%s-%s-*.rpm dist/' % (sname, sversion))
@@ -285,12 +297,26 @@ def main():
     '### GENERIC_SETUP_MARKER_END ###' not in source_code_data:
         print
         print 'ERR: Check your program "%s" define markers. Some of the \
-required markers are missing.' % source_code
+required markers are missing (probably \
+\"### GENERIC_SETUP_MARKER_START ###\" or \
+\"### GENERIC_SETUP_MARKER_END ###\").' % source_code
         generic_setup()
         sys.exit(2)
     setup_data += source_code_data.split('### GENERIC_SETUP_MARKER_START ###')[1].split('### GENERIC_SETUP_MARKER_END ###')[0]
 
-    # Save this content, so we can import it to use:
+    # Search for the Python Lib dir and Version markers:
+        # @@PYLIB_MARKER@@
+        # @@PYVER_MARKER@@
+    if '@@PYLIB_MARKER@@' not in setup_data or \
+    '@@PYVER_MARKER@@' not in setup_data:
+        print
+        print 'ERR: Check your program "%s" __rpm_data__ markers. Some of the \
+required markers are missing (probably \"@@PYLIB_MARKER@@\" or \
+\"@@PYVER_MARKER@@\").' % source_code
+        generic_setup()
+        sys.exit(3)
+
+    # Save this content, so we can import to use it later:
     open('setup_data_file.py', 'w').write(setup_data)
     try:
         import setup_data_file
@@ -299,14 +325,14 @@ required markers are missing.' % source_code
         print 'ERR: Check your program "%s" defines. Some of the required \
 entries are missing: [%s]' % (source_code, why)
         generic_setup()
-        sys.exit(3)
+        sys.exit(4)
     try:
         os.remove('setup_data_file.py')
         os.remove('setup_data_file.pyc')
     except:
         pass
 
-    # Test if the program file contains all the data needed to run the setup.py
+    # Test if the program file contains all the variables needed to run setup.py
     try:
         sname             = setup_data_file.__program_name__
         sscripts          = setup_data_file.__scripts__
@@ -331,7 +357,7 @@ entries are missing: [%s]' % (source_code, why)
         print 'ERR: Check your program "%s" defines. Some of the required \
 entries are missing: [%s]' % (source_code, why)
         generic_setup()
-        sys.exit(4)
+        sys.exit(5)
 
     # Remove e-mail from the author's and maintainer's name (for the .spec generation)
     sauthor = sauthor.split(' <')[0]
@@ -345,18 +371,19 @@ entries are missing: [%s]' % (source_code, why)
     for f in setup_data_file.__scripts__:
         s.append(f)
     # sort -u
-    s = sorted([a for a,b in itertools.groupby(sorted(s))])
+    s = sortuniq(s)
     m = open('MANIFEST', 'w')
     for f in s:
         m.write(f + '\n')
     m.close()
 
-    # All set here, just use the values now.
+    # All set here. Just use the values now.
+
     # Help for generic_setup
     if len(sys.argv) == 1:
         generic_setup()
 
-    # rpmbuild for a custom, automagically generated, RPM .spec file.
+    # rpmbuild for a custom, automagically generated, RPM .spec file
     if len(sys.argv) == 2:
         if sys.argv[1] == 'rpmbuild':
             rpmbuild(sname, sversion, srpmdata)
