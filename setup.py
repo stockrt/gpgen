@@ -392,7 +392,7 @@ entries are missing: [%s]' % (source_code, why)
     # Clean all, really
     if len(sys.argv) == 2:
         if sys.argv[1] == 'clean':
-            os.system('rm -rf MANIFEST dist')
+            os.system('rm -rf MANIFEST dist *.pyc *.pyo')
             sys.exit(0)
 if __name__ == '__main__':
     main()
