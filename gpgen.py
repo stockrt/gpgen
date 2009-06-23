@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
 '''
  * =========================================================================
  * gpgen.py
@@ -26,7 +27,7 @@ login = 'stockrt'
 include_private_repos = True
 
 # The projects you do not want to list in your page
-exclude_projects = [login + '.github.com', 'testproject']
+exclude_projects = [login + '.github.com', 'packages', 'testproject']
 
 # HTML contents
 page = {'html_head_title': 'Weekend coding',
@@ -37,11 +38,13 @@ page = {'html_head_title': 'Weekend coding',
 
 # Extra Footer links
 extra_footer_links = []
-extra_footer_links.append({'url': 'http://twitter.com/' + login,
+extra_footer_links.append({'url': 'http://github.com/%s/packages' % login,
+                    'description': 'packages'})
+extra_footer_links.append({'url': 'http://twitter.com/%s' % login,
                     'description': 'twitter'})
 extra_footer_links.append({'url': 'http://stockrtweb.homelinux.com',
                     'description': 'directory listing at home'})
-extra_footer_links.append({'url': 'http://picasaweb.google.com/' + login,
+extra_footer_links.append({'url': 'http://picasaweb.google.com/%s' % login,
                     'description': 'seeme'})
 
 # Your google-analytics javascript
@@ -164,6 +167,8 @@ ${google_analytics_js}
 
 </body>
 </html>'''
+# Change this HTML template if you want
+# --------------------------------------------------------------------------
 ### DEFINES_END ###
 
 ### GENERIC_SETUP_MARKER_START ###
@@ -249,6 +254,7 @@ def main():
 to fit your preferences'
         parser.exit(1)
 
+    # Get data from GitHub
     github_api_url = 'http://github.com/api/v2/json'
 
     print 'Getting user\'s profile (%s)...' % login
@@ -261,13 +267,25 @@ to fit your preferences'
     repos = simplejson.loads(json)['repositories']
     print 'Getting user\'s repositories (%s)... done' % login
 
-    repositories = []
+    # Remove unwanted repos
+    repos2 = []
     for r in repos:
         if (r['private'] and not include_private_repos) or \
         (r['name'] in exclude_projects):
             continue
-        repositories.append(r)
+        repos2.append(r)
 
+    # Sort repos
+    repositories = []
+    l = [r['name'] for r in repos2]
+    l.sort()
+    for n in l:
+        for r in repos2:
+            if r['name'] == n:
+                repositories.append(r)
+                break
+
+    # Generate output based on the defined template
     t = Template(template)
     t2 = t.render_unicode(login=login,
                           page=page,
@@ -275,7 +293,6 @@ to fit your preferences'
                           google_analytics_js=google_analytics_js,
                           user=user,
                           repositories=repositories)
-
     print 'Writing output to %s file...' % options.gen
     open(options.gen, 'w').write(t2.encode('utf-8', 'replace'))
     print 'Writing output to %s file... done' % options.gen
