@@ -17,8 +17,8 @@
 '''
 __program_file__     = 'setup.py'
 __program_name__     = 'generic_setup'
-__version__          = '0.1.1'
-__date__             = '2009/06/19'
+__version__          = '0.1.2'
+__date__             = '2009/06/22'
 __author_email__     = 'stockrt@gmail.com'
 __author__           = 'Rogério Carvalho Schneider <%s>' % __author_email__
 __maintainer_email__ = __author_email__
@@ -48,7 +48,7 @@ inside your main program source file.
 
 ### DEFINES_START ###
 # Set this parameter to point to your source file, leave the rest as is:
-source_code = 'gpgen.py'
+source_code = 'change_me.py'
 
 # Basic specfile defines
 brpmdata = '''
@@ -127,11 +127,11 @@ from feed sites based on user's filters.
 \''' % __program_file__
 __rpm_data__        = \'''
 %files
+%defattr(-,root,root,-)
+%dir /var/spool/%{name}
 %config(noreplace) /usr/local/%{name}/conf/%{name}.conf
 /usr/local/%{name}/bin/%{name}.py
 /usr/lib/python@@PYVER_MARKER@@/site-packages/%{name}-%{unmangled_version}-py@@PYVER_MARKER@@.egg-info
-%dir /var/spool/%{name}
-%defattr(-,root,root)
 
 %post
 echo
@@ -177,14 +177,15 @@ source_code = 'feedget.py'
 Done :)
 
 Now you can:
-./setup.py install          install your app
-./setup.py sdist            create a source distribution (tarball, zip file, etc.)
-./setup.py register         register the distribution with the Python package index
-./setup.py bdist            create a built (binary) distribution
-./setup.py bdist_dumb       create a "dumb" built distribution
-./setup.py bdist_rpm        create an RPM distribution
-./setup.py bdist_wininst    create an executable installer for MS Windows
-
+ ./setup.py install          install your app
+ ./setup.py sdist            create a source distribution (tarball, zip file, etc.)
+ ./setup.py register         register the distribution with the Python package index
+ ./setup.py bdist            create a built (binary) distribution
+ ./setup.py bdist_dumb       create a "dumb" built distribution
+ ./setup.py bdist_rpm        create an RPM distribution
+ ./setup.py bdist_wininst    create an executable installer for MS Windows
+The special rpmbuild:
+ ./setup.py rpmbuild         automated rpmbuild with custom .spec
 And also all the commands and options available from --help and --help-commands'''
 
 def generic_setup_rpmbuild():
@@ -227,11 +228,12 @@ def rpmbuild(sname, sversion, srpmdata):
         # Python Version
         pyver = '%d.%d' % (sys.version_info[0], sys.version_info[1])
         # Applying the changes to the .spec (%files/%config/%dir/%post):
-        newspec = brpmdata # initialize spec with the basic
+        # Initialize spec with the basic
+        newspec = brpmdata
         for l in open('dist/%s.spec' % sname).readlines():
             # Remove the defaults:
             # '%files -f INSTALLED_FILES'
-            # '%defattr(-,root,root)'
+            # '%defattr(-,root,root,-)'
             if '%files -f INSTALLED_FILES' not in l and '%defattr' not in l:
                 newspec += l
         # Insert the user defined specs (%files/%config/%dir/%post):
@@ -403,47 +405,4 @@ if __name__ == '__main__':
 
 # Trove classifiers:
  http://pypi.python.org/pypi?:action=list_classifiers
-'''
-
-'''
-# Mind Notes:
-
-# http://peak.telecommunity.com/DevCenter/setuptools
-
-# from setuptools import setup
-#+ python setup.py build
-#Check your setup.py script defines. File not found: [feedget.py]
-#For more help type: ./setup.py generic_setup
-#error: Bad exit status from /var/tmp/rpm-tmp.31499 (%build)
-#    try:
-#        import ez_setup
-#        ez_setup.use_setuptools()
-#    except:
-#        pass
-
-# Automatic Script Creation
-setup(
-    # other arguments here...
-    entry_points = {
-        'console_scripts': [
-            'foo = my_package.some_module:main_func',
-            'bar = other_module:some_func',
-        ],
-            'gui_scripts': [
-            'baz = my_package_gui.start_func',
-        ]
-    }
-)
-
-# Dependencies that aren't in PyPI
-setup(
-    dependency_links = [
-        "http://peak.telecommunity.com/snapshots/"
-    ]
-)
-'''
-
-'''
-# TODO:
-- --template (cria um arquivo .py com o template sugerido)
 '''
