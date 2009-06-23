@@ -48,7 +48,7 @@ inside your main program source file.
 
 ### DEFINES_START ###
 # Set this parameter to point to your source file, leave the rest as is:
-source_code = 'change_me.py'
+source_code = 'gpgen.py'
 
 # Basic specfile defines
 brpmdata = '''
