@@ -30,9 +30,9 @@ include_private_repos = True
 exclude_projects = [login + '.github.com', 'packages', 'testproject']
 
 # HTML contents
-page = {'html_head_title': 'Weekend coding',
-        'html_head_description': 'Weekend codes I made and hosted on GitHub to share with you',
-        'html_head_keywords': 'python, github user page, weekend code, modules, rpm',
+page = {'html_head_title': 'Weekend codes',
+        'html_head_description': 'Codes and random stuff I am up to share with you',
+        'html_head_keywords': 'python, github user page, weekend codes, modules, rpm, linux',
         'html_body_message': 'and here you can find some of my weekend codes:'
 }
 
@@ -76,7 +76,6 @@ template = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <title>${user['name']} - ${page['html_head_title']}</title>
-<meta http-equiv="Refresh" content="60"/>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <meta name="author" content="${user['name']}" xml:lang="en" lang="en"/>
 <meta name="description" content="${page['html_head_description']}" xml:lang="en" lang="en"/>
