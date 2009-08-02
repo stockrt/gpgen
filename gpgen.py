@@ -38,6 +38,8 @@ page = {'html_head_title': 'Weekend codes',
 
 # Extra Footer links
 extra_footer_links = []
+extra_footer_links.append({'url': 'http://%s.github.com' % login,
+                    'description': 'home'})
 extra_footer_links.append({'url': 'http://github.com/%s/packages' % login,
                     'description': 'packages'})
 extra_footer_links.append({'url': 'http://twitter.com/%s' % login,
