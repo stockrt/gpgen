@@ -44,8 +44,6 @@ extra_footer_links.append({'url': 'http://github.com/%s/packages' % login,
                     'description': 'packages'})
 extra_footer_links.append({'url': 'http://twitter.com/%s' % login,
                     'description': 'twitter'})
-extra_footer_links.append({'url': 'http://stockrtweb.homelinux.com',
-                    'description': 'directory listing at home'})
 extra_footer_links.append({'url': 'http://%s.github.com/misc/vitae/rogerio_schneider.pdf' % login,
                     'description': 'vitae'})
 extra_footer_links.append({'url': 'http://picasaweb.google.com/%s' % login,
