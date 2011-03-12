@@ -305,5 +305,6 @@ to fit your preferences'
     print 'Writing output to %s file...' % options.gen
     open(options.gen, 'w').write(t2.encode('utf-8', 'replace'))
     print 'Writing output to %s file... done' % options.gen
+
 if __name__ == '__main__':
     main()
